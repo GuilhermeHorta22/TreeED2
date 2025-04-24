@@ -11,20 +11,64 @@ struct Tree
 };
 typedef struct Tree tree;
 
+struct Pilha
+{
+	tree *no;
+	struct Pilha *prox;
+};
+typedef struct Pilha pilha;
+
+//função que iniciliza a pilha
+void init(pilha **p)
+{
+	*p = NULL;
+}
+
+//função que verifica se a pilha está vazia
+char isEmpty(pilha *p)
+{
+	return p == NULL;
+}
+
+//função que insere um elemento na pilha
+void push(pilha **p, tree *raiz)
+{
+	pilha *nova = (pilha*)malloc(sizeof(pilha));
+	nova->no = raiz;
+	
+	nova->prox = *p;
+	*p = nova;
+}
+
+//função que retira um elemento da pilha
+void pop(pilha **p, tree **raiz)
+{
+	pilha *aux;
+	if(!isEmpty(*p))
+	{
+		aux = *p;
+		*raiz = (*p)->no;
+		*p = aux->prox;
+		free(aux);
+	}
+}
+
+//função que cria um novo no para ser adicionado na arvore
 tree *criaNo(int info)
 {
 	tree *novoNo = (tree*)malloc(sizeof(tree));
 	novoNo->info = info;
-	novoNO->esq = novoNo->dir = NULL;
+	novoNo->esq = novoNo->dir = NULL;
 	return novoNo;
 }
 
+//função que localiza um no na arvore
 void localiza(tree *raiz, int info, tree **no)
 {
 	if(raiz != NULL)
 	{
 		if(raiz->info == info)
-			*no = raiz->info;
+			*no = raiz;
 		else
 		{
 			localiza(raiz->esq,info,&*no);
@@ -33,6 +77,7 @@ void localiza(tree *raiz, int info, tree **no)
 	}
 }
 
+//função que auxilia na localização de um no na arvore
 tree *localizaNo(tree *raiz, int info)
 {
 	tree *no = NULL;
@@ -40,7 +85,8 @@ tree *localizaNo(tree *raiz, int info)
 	return no;
 }
 
-void insere(tree **raiz, int info)
+//função que insere um elemento na arvore ABB de forma interativa
+void insereABBint(tree **raiz, int info)
 {
 	tree *aux, *ant;
 	
@@ -64,19 +110,17 @@ void insere(tree **raiz, int info)
 	}
 }
 
-//falta ainda dois inserir para ser feito
-//void insereRecur(tree **raiz, int info)
-
-void inserirABB(tree **raiz, int info)
+//função que insere um elemento na arvore ABB de forma recursiva
+void inserirABBrec(tree **raiz, int info)
 {
 	if(*raiz == NULL)
 		*raiz = criaNo(info);
 	else
 	{
 		if(info > (*raiz)->info)
-			insereABB(&(*raiz)->esq,info);
+			inserirABBrec(&(*raiz)->esq,info);
 		else
-			insereABB(&(*raiz)->esq,info);
+			inserirABBrec(&(*raiz)->esq,info);
 	}
 }
 
@@ -94,7 +138,7 @@ tree *buscaABBint(tree *raiz, int info)
 	return raiz;
 }
 
-//busca recursiva com return
+//função que busca um elemento na arvore ABB de forma recursiva com return
 tree *buscaABBret(tree *raiz, int info)
 {
 	if(raiz != NULL)
@@ -110,7 +154,8 @@ tree *buscaABBret(tree *raiz, int info)
 	return NULL;
 }
 
-void buscaABBrec(tree *raiz, int info, tree **aux) //não sei se realmente é isso
+//função que busca um elemento na arvore ABB de maneira recursiva
+void buscaABBrec(tree *raiz, int info, tree **aux)
 {
 	if(raiz != NULL)
 	{
@@ -124,7 +169,7 @@ void buscaABBrec(tree *raiz, int info, tree **aux) //não sei se realmente é isso
 	}
 }
 
-//essa busca é a mesma coisa da anterior, a diferença é que escreve menos um if
+//função que busca um elemento na arvore ABB de maneira mais curta (recursiva)
 void buscaABB(tree *raiz, int info, tree **aux)
 {
 	if(raiz != NULL || info == raiz->info)
@@ -158,20 +203,209 @@ void exibeTree(tree *raiz, int x, int y, int dist)
 	}
 }
 
+//função que exibe a arvore em pre ordem
+void pre_ordemInt(tree *raiz)
+{
+	pilha *p;
+	init(&p);
+	push(&p,raiz);
+	while(!isEmpty(p))
+	{
+		if(raiz != NULL)
+		{
+			pop(&p,&raiz);
+			while(raiz != NULL)
+			{
+				printf("\n%d",raiz->info);
+				push(&p,raiz);
+				raiz = raiz->esq;
+			}
+		}
+		pop(&p,&raiz);
+		raiz = raiz->dir;
+		if(raiz != NULL)
+			push(&p,raiz);
+	}
+}
+
+//função que exibe a arvore em pos ordem
+void in_ordemInt(tree *raiz)
+{
+	pilha *p;
+	init(&p);
+	push(&p,raiz);
+	while(!isEmpty(p))
+	{
+		if(raiz != NULL)
+		{
+			pop(&p,&raiz);
+			while(raiz != NULL)
+			{
+				push(&p,raiz);
+				raiz = raiz->esq;
+			}
+		}
+		pop(&p,&raiz);
+		printf("\n%d",raiz->info);
+		raiz = raiz->dir;
+		if(raiz != NULL)
+			push(&p,raiz);
+	}
+}
+
+//função que exibe a arvore em in ordem
+void pos_ordemInt(tree *raiz)
+{
+	pilha *p, *p2;
+	init(&p);
+	init(&p2);
+	push(&p,raiz);
+	while(!isEmpty(p))
+	{
+		if(raiz != NULL)
+		{
+			pop(&p,&raiz);
+			while(raiz != NULL)
+			{
+				push(&p2,raiz);
+				push(&p,raiz);
+				raiz = raiz->dir;
+			}
+		}
+		pop(&p,&raiz);
+		raiz = raiz->esq;
+		if(raiz != NULL)
+			push(&p,raiz);
+		
+		while(!isEmpty(p2))
+		{
+			pop(&p2,&raiz);
+			printf("\n%d",raiz->info);
+		}
+	}
+}
+
+
+char menu(void)
+{
+	printf("*** MENU ARVORE ABB ***\n");
+	printf("\n[A] - Busca ABB interativa");
+	printf("\n[B] - Busca ABB recursiva");
+	printf("\n[C] - Busca ABB recursiva com return");
+	printf("\n[D] - Busca ABB recursiva curta");
+	printf("\n[E] - Exibe ABB montada");
+	printf("\n[F] - Exibe ABB pre ordem interativo");
+	printf("\n[G] - Exibe ABB in ordem interativo");
+	printf("\n[H] - Exibe ABB pos ordem interativo");
+	printf("\n[ESC] - Encerrar algoritmo\n");
+	printf("\nOpcao: ");
+	
+	return toupper(getche());
+}
+
 int main()
 {
 	tree *raiz = NULL;
 	tree *aux = NULL; //vou usar na buscaABB
 	
-	insere(&raiz,15,0,' '); //raiz da arvore
-	insere(&raiz,8,15,'e');
-	insere(&raiz,20,15,'d');
-	insere(&raiz,5,8,'e');
-	insere(&raiz,12,8,'d');
-	insere(&raiz,10,12,'e');
-	insere(&raiz,18,20,'e');
-	insere(&raiz,22,20,'d');
+	char op;
+	int valor, x=60, y=1, dist=20;
 	
-	buscaABB(raiz,20,&aux);
-	printf("%d\n",aux->info);
+	//montando a arvore
+	inserirABBrec(&raiz,15); //raiz da arvore
+	inserirABBrec(&raiz,8);
+	inserirABBrec(&raiz,5);
+	inserirABBrec(&raiz,12);
+	inserirABBrec(&raiz,10);
+	inserirABBrec(&raiz,20);
+	inserirABBrec(&raiz,18);
+	inserirABBrec(&raiz,22);
+	
+	do
+	{
+		op = menu();
+		system("cls");
+			
+		switch(op)
+		{
+			case 'A':
+				printf("### BUSCA ABB INTERATIVA ###\n");
+				printf("\nDigite um valor para ser buscado: ");
+				scanf("%d",&valor);
+				aux = buscaABBint(raiz,valor);
+				if(aux == NULL)//não achou
+					printf("\nNao achou o valor!!!\n");
+				else
+					printf("\nValor: %d",aux->info);
+				
+				break;
+				
+			case 'B':
+				printf("### BUSCA ABB RECURSIVA ###\n");
+				printf("\nDigite um valor para ser buscado: ");
+				scanf("%d",&valor);
+				buscaABBrec(raiz,valor,&aux);
+				if(aux == NULL)
+					printf("\nNao achou o valor!!!");
+				else
+					printf("\nValor: %d",aux->info);
+					
+				break;
+				
+			case 'C':
+				printf("### BUSCA ABB RECURSIVA COM RETURN ###\n");
+				printf("\nDigite um valor para ser buscado: ");
+				scanf("%d",&valor);
+				aux = buscaABBret(raiz,valor);
+				if(aux == NULL)
+					printf("\nNao achou o valor!!!");
+				else
+					printf("\nValor: %d",aux->info);
+					
+				break;
+				
+			case 'D':
+				printf("### BUSCA ABB CURTA ###");
+				printf("\nDigite um valor para ser buscado: ");
+				scanf("%d",&valor);
+				buscaABB(raiz,valor,&aux);
+				if(aux == NULL)
+					printf("\nNao achou o valor!!!");
+				else
+					printf("\nValor: %d",aux->info);
+					
+				break;
+				
+			case 'E':
+				printf("### EXIBE ABB MONTADA ###\n");
+				exibeTree(raiz,x,y,dist);
+				
+				break;
+				
+			case 'F':
+				printf("### EXIBE ABB PRE ORDEM INTERATIVO ###\n");
+				pre_ordemInt(raiz);
+				
+				break;
+				
+			case 'G':
+				printf("### EXIBE ABB IN ORDEM INTERATIVO ###\n");
+				in_ordemInt(raiz);
+				
+				break;
+				
+			case 'H':
+				printf("### EXIBE ABB POS ORDEM INTERATIVO ###\n");
+				pos_ordemInt(raiz);
+				
+				break;
+				
+			case 27:
+				printf("Algoritmo encerrado!\n");
+				
+				break;
+		}
+		getch(); //para travar a exibição
+		system("cls");
+	}while(op != 27);
 }
