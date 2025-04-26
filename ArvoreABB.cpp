@@ -297,6 +297,7 @@ char menu(void)
 	printf("\n[F] - Exibe ABB pre ordem interativo");
 	printf("\n[G] - Exibe ABB in ordem interativo");
 	printf("\n[H] - Exibe ABB pos ordem interativo");
+	printf("\n[I] - Localiza no ABB");
 	printf("\n[ESC] - Encerrar algoritmo\n");
 	printf("\nOpcao: ");
 	
@@ -398,6 +399,19 @@ int main()
 				printf("### EXIBE ABB POS ORDEM INTERATIVO ###\n");
 				pos_ordemInt(raiz);
 				
+				break;
+			
+			case 'I':
+				printf("### LOCALIZA NO ABB ###\n");
+				printf("\nValor para ser localizado: ");
+				scanf("%d",&valor);
+				
+				aux = localizaNo(raiz,valor);
+				if(aux != NULL)
+					printf("\nValor: %d",aux->info);
+				else
+					printf("\nValor nao encontrado!\n");
+					
 				break;
 				
 			case 27:

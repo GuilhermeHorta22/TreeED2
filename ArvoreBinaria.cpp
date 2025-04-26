@@ -101,7 +101,7 @@ void pos_ordem(tree *raiz)
 
 int main()
 {
-	tree *raiz = NULL;
+	tree *raiz = NULL; //init
 	insere(&raiz,15,0,' '); //raiz da arvore
 	insere(&raiz,8,15,'e');
 	insere(&raiz,20,15,'d');
