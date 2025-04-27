@@ -99,6 +99,18 @@ void pos_ordem(tree *raiz)
 	}
 }
 
+//deletando uma arvore inteira usando pos_ordem
+void delPos_ordem(tree **raiz)
+{
+	if(*raiz != NULL)
+	{
+		delPos_ordem(&(*raiz)->esq);
+		delPos_ordem(&(*raiz)->dir);
+		free(*raiz);
+	}
+	*raiz = NULL;
+}
+
 int main()
 {
 	tree *raiz = NULL; //init

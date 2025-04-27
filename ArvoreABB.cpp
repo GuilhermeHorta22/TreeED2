@@ -118,7 +118,7 @@ void inserirABBrec(tree **raiz, int info)
 	else
 	{
 		if(info > (*raiz)->info)
-			inserirABBrec(&(*raiz)->esq,info);
+			inserirABBrec(&(*raiz)->dir,info);
 		else
 			inserirABBrec(&(*raiz)->esq,info);
 	}
@@ -285,6 +285,52 @@ void pos_ordemInt(tree *raiz)
 	}
 }
 
+//deletando uma ABB inteira usando pos_ordem (RECURSIVO)
+void delPos_ordem(tree **raiz)
+{
+	if(*raiz != NULL)
+	{
+		delPos_ordem(&(*raiz)->esq);
+		delPos_ordem(&(*raiz)->dir);
+		free(*raiz);
+	}
+	*raiz = NULL;
+}
+
+//deletando uma ABB inteira usando pos_ordem (INTERATIVO)
+void delPos_ordemInt(tree **raiz)
+{
+	tree *aux = *raiz;
+	pilha *p, *p2;
+	init(&p);
+	init(&p2);
+	
+	push(&p,aux);
+	while(!isEmpty(p))
+	{
+		if(aux != NULL)
+		{
+			pop(&p,&aux);
+			while(aux != NULL)
+			{
+				push(&p,aux);
+				push(&p2,aux);
+				aux = aux->dir;
+			}
+		}
+		pop(&p,&aux);
+		aux = aux->esq;
+		if(aux != NULL)
+			push(&p,aux);
+		
+		while(!isEmpty(p2))
+		{
+			pop(&p2,&aux);
+			free(aux);
+		}
+	}
+	*raiz = NULL;
+}
 
 char menu(void)
 {
@@ -298,6 +344,8 @@ char menu(void)
 	printf("\n[G] - Exibe ABB in ordem interativo");
 	printf("\n[H] - Exibe ABB pos ordem interativo");
 	printf("\n[I] - Localiza no ABB");
+	printf("\n[J] - Deletando uma ABB inteira recursivo");
+	printf("\n[K] - Deletando uma ABB inteira interativa");
 	printf("\n[ESC] - Encerrar algoritmo\n");
 	printf("\nOpcao: ");
 	
@@ -378,7 +426,7 @@ int main()
 				break;
 				
 			case 'E':
-				printf("### EXIBE ABB MONTADA ###\n");
+				//printf("### EXIBE ABB MONTADA ###\n");
 				exibeTree(raiz,x,y,dist);
 				
 				break;
@@ -414,6 +462,19 @@ int main()
 					
 				break;
 				
+			case 'J':
+				printf("### DELETANDO ABB INTEIRA RECURSIVO###\n");
+				delPos_ordem(&raiz);
+				
+				printf("\nArvore deletada com sucesso!\n");
+				break;
+				
+			case 'K':
+				printf("### DELETANDO ABB INTEIRA INTERATIVO###\n");
+				delPos_ordemInt(&raiz);
+				
+				printf("\nArvore deletada com sucesso!\n");
+				break;
 			case 27:
 				printf("Algoritmo encerrado!\n");
 				
