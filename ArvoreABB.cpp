@@ -332,6 +332,88 @@ void delPos_ordemInt(tree **raiz)
 	*raiz = NULL;
 }
 
+void buscaNo(tree *raiz, int info, tree **e, tree **pai)
+{
+	*e = raiz;
+	while(*e != NULL && (*e)->info != info)
+	{
+		if(info > (*e)->info)
+		{
+			*pai = *e;
+			*e = (*e)->dir;
+		}
+		else
+		{
+			*pai = *e;
+			*e = (*e)->esq;
+		}
+	}
+}
+
+void excluiNo(tree **raiz, tree *e, tree *pai)
+{
+	tree *sub = NULL;
+	tree *subPai = NULL;
+	int aux;
+	
+	if(e->esq == NULL && e->dir == NULL) //não tem nenhum filho
+	{
+		if(e != pai)
+		{
+			if(e->info > pai->info)
+				pai->dir = NULL;
+			else
+				pai->esq = NULL;
+		}
+		else //se caso existir apenas a raiz
+			*raiz = NULL;
+		free(e);
+	}
+	else
+	if(e->esq == NULL || e->dir == NULL) //apenas um filho
+	{
+		if(e != pai)
+		{
+			if(e->info > pai->info) //lado direito
+			{
+				if(e->esq != NULL) //tem um filho
+					pai->dir = e->esq;
+				else
+					pai->dir = e->dir;
+			}
+			else
+			{
+				if(e->esq != NULL)
+					pai->esq = e->esq;
+				else
+					pai->esq = e->dir;
+			}
+		}
+		else
+		{
+			if(e->esq != NULL)
+				*raiz = e->esq;
+			else
+			if(e->dir != NULL)
+				*raiz = e->dir;
+		}
+		free(e);
+	}
+	else //tem dois filhos
+	{
+		sub = e->dir;
+		subPai = e;
+		while(sub->esq != NULL)
+		{
+			pai = sub;
+			sub = sub->esq;
+		}
+		aux = sub->info;
+		excluiNo(&*raiz,sub,subPai);
+		e->info = aux;
+	}
+}
+
 char menu(void)
 {
 	printf("*** MENU ARVORE ABB ***\n");
@@ -346,6 +428,7 @@ char menu(void)
 	printf("\n[I] - Localiza no ABB");
 	printf("\n[J] - Deletando uma ABB inteira recursivo");
 	printf("\n[K] - Deletando uma ABB inteira interativa");
+	printf("\n[L] - Excluindo no ABB");
 	printf("\n[ESC] - Encerrar algoritmo\n");
 	printf("\nOpcao: ");
 	
@@ -357,8 +440,12 @@ int main()
 	tree *raiz = NULL;
 	tree *aux = NULL; //vou usar na buscaABB
 	
+	//vou usar na função de excluir um no
+	tree *e = NULL;
+	tree *pai = NULL;
+	
 	char op;
-	int valor, x=60, y=1, dist=20;
+	int valor, x=60, y=1, dist=20, info;
 	
 	//montando a arvore
 	inserirABBrec(&raiz,15); //raiz da arvore
@@ -475,6 +562,25 @@ int main()
 				
 				printf("\nArvore deletada com sucesso!\n");
 				break;
+				
+			case 'L':
+				printf("### EXCLUINDO NO DA ABB ###\n");
+				
+				printf("\nDigite o valor para ser excluido: ");
+				scanf("%d",&info);
+				
+				buscaNo(raiz,info,&e,&pai);
+				
+				if(e != NULL && e->info == info) //achou
+				{
+					excluiNo(&raiz,e,pai);
+					printf("\nNo excluido com sucesso!");
+				}
+				else
+					printf("\nNao foi encontrado o no para exclusao!");
+				
+				break;
+				
 			case 27:
 				printf("Algoritmo encerrado!\n");
 				
