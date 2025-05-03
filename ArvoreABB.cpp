@@ -18,6 +18,43 @@ struct Pilha
 };
 typedef struct Pilha pilha;
 
+struct Fila
+{
+	tree *no;
+	struct Fila *prox;
+};
+typedef struct Fila fila;
+
+
+//função que inicializa a fila
+void initFila(fila **f)
+{
+	*f = NULL;
+}
+
+//FALTA TERMINAR O TAD DE FILA
+
+//função que verifica se a fila ta vazia
+
+//função que enfileira
+void enqueue(fila **f, tree *no)
+{
+	fila *novoNo, *aux;
+	novoNo = (fila*)malloc(sizeof(fila));
+	novoNo->no = no;
+	novoNo->prox = NULL;
+	if()
+	
+}
+
+//função que desinfilera
+
+//função que verifica a quantidade de nó
+
+//função que balanceia a ABB
+
+//função principal do balanceamento
+
 //função que iniciliza a pilha
 void init(pilha **p)
 {
@@ -429,6 +466,7 @@ char menu(void)
 	printf("\n[J] - Deletando uma ABB inteira recursivo");
 	printf("\n[K] - Deletando uma ABB inteira interativa");
 	printf("\n[L] - Excluindo no ABB");
+	printf("\n[M] - Balanceando ABB");
 	printf("\n[ESC] - Encerrar algoritmo\n");
 	printf("\nOpcao: ");
 	
@@ -578,6 +616,13 @@ int main()
 				}
 				else
 					printf("\nNao foi encontrado o no para exclusao!");
+				
+				break;
+				
+			case 'M':
+				printf("### BALANCEADO ARVORE ABB ###\n");
+				
+				
 				
 				break;
 				
