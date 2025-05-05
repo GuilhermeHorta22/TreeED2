@@ -35,6 +35,10 @@ void initFila(fila **f)
 //FALTA TERMINAR O TAD DE FILA
 
 //função que verifica se a fila ta vazia
+char isEmptyFila(fila *f)
+{
+	return f == NULL;
+}
 
 //função que enfileira
 void enqueue(fila **f, tree *no)
@@ -43,17 +47,150 @@ void enqueue(fila **f, tree *no)
 	novoNo = (fila*)malloc(sizeof(fila));
 	novoNo->no = no;
 	novoNo->prox = NULL;
-	if()
 	
+	if(*f == NULL)
+		*f = novoNo;
+	else
+	{
+		fila *aux = *f;
+		while(aux->prox != NULL)
+			aux = aux->prox;
+			
+		aux->prox = novoNo;
+	}
 }
 
 //função que desinfilera
+void dequeue(fila **f, tree **no)
+{
+	fila *aux;
+	aux = *f;
+	*no = (*f)->no; //passando o conteudo da fila
+	*f = (*f)->prox;
+	free(aux);
+}
+
+//função que exclui um no pelo lado
+void exclusaoLado(tree **raiz, tree *e, tree *pai, char lado)
+{
+	tree *sub = NULL;
+	tree *subPai = NULL;
+	int aux;
+	
+	if(e->esq == NULL && e->dir == NULL) //não tem nenhum filho
+	{
+		if(e != pai)
+		{
+			if(e->info > pai->info)
+				pai->dir = NULL;
+			else
+				pai->esq = NULL;
+		}
+		else //se caso existir apenas a raiz
+			*raiz = NULL;
+		free(e);
+	}
+	else
+	if(e->esq == NULL || e->dir == NULL) //apenas um filho
+	{
+		if(e != pai)
+		{
+			if(e->info > pai->info) //lado direito
+			{
+				if(e->esq != NULL) //tem um filho
+					pai->dir = e->esq;
+				else
+					pai->dir = e->dir;
+			}
+			else
+			{
+				if(e->esq != NULL)
+					pai->esq = e->esq;
+				else
+					pai->esq = e->dir;
+			}
+		}
+		else
+		{
+			if(e->esq != NULL)
+				*raiz = e->esq;
+			else
+			if(e->dir != NULL)
+				*raiz = e->dir;
+		}
+		free(e);
+	}
+	else //tem dois filhos
+	{
+		if(lado == 'd')
+		{
+			sub = e->dir;
+			subPai = e;
+			while(sub->esq != NULL)
+			{
+				subPai = sub;
+				sub = sub->esq;
+			}
+			aux = sub->info;
+			exclusaoLado(&*raiz,sub,subPai,lado);
+			e->info = aux;
+		}
+		else
+		if(lado == 'e')
+		{
+			sub = e->esq;
+			subPai = e;
+			while(sub->dir != NULL)
+			{
+				subPai = sub;
+				sub = sub->dir;
+			}
+			aux = sub->info;
+			exclusaoLado(&*raiz,sub,subPai,lado);
+			e->info = aux;
+		}
+		else
+			printf("\nNao existe esse lado!\n");
+	}
+}
+
+//função que faz a travessia em pre ordem dentro da ABB
+void pre_ordem(tree *raiz)
+{
+	if(raiz != NULL)
+	{
+		pre_ordem(raiz->esq);
+		pre_ordem(raiz->dir);
+	}
+}
 
 //função que verifica a quantidade de nó
-
-//função que balanceia a ABB
+void quantNo(tree *raiz, int *cont)
+{
+	if(raiz != NULL)
+	{
+		quantNo(raiz->esq,&*cont);
+		quantNo(raiz->dir,&*cont);
+		(*cont)++;
+	}
+}
 
 //função principal do balanceamento
+void BuscaBalanceamento(tree **raiz)
+{
+	tree *no;
+	fila *f;
+	initFila(&f);
+	enqueue(&f,*raiz);
+	while(!isEmptyFila(f))
+	{
+		dequeue(&f,&no);
+		if(no->esq != NULL)
+			enqueue(&f,no->esq);
+		if(no->dir != NULL)
+			enqueue(&f,no->dir);
+	}
+}
 
 //função que iniciliza a pilha
 void init(pilha **p)
@@ -451,6 +588,86 @@ void excluiNo(tree **raiz, tree *e, tree *pai)
 	}
 }
 
+//função que balanceia a ABB
+void balanceamento(tree **raiz, tree *e, tree *pai)
+{
+	tree *sub = NULL;
+	tree *subPai = NULL;
+	tree *no = NULL;
+	int aux, fb;
+	
+	if(e->esq == NULL && e->dir == NULL) //não tem nenhum filho
+	{
+		if(e != pai)
+		{
+			if(e->info > pai->info)
+				pai->dir = NULL;
+			else
+				pai->esq = NULL;
+		}
+		else //se caso existir apenas a raiz
+			*raiz = NULL;
+		free(e);
+	}
+	else
+	if(e->esq == NULL || e->dir == NULL) //apenas um filho
+	{
+		if(e != pai)
+		{
+			if(e->info > pai->info) //lado direito
+			{
+				if(e->esq != NULL) //tem um filho
+					pai->dir = e->esq;
+				else
+					pai->dir = e->dir;
+			}
+			else
+			{
+				if(e->esq != NULL)
+					pai->esq = e->esq;
+				else
+					pai->esq = e->dir;
+			}
+		}
+		else
+		{
+			if(e->esq != NULL)
+				*raiz = e->esq;
+			else
+			if(e->dir != NULL)
+				*raiz = e->dir;
+		}
+		free(e);
+	}
+	else
+	{
+		do
+		{
+			int qtdeDir=0, qtdeEsq=0;
+			quantNo(no->dir,&qtdeDir);
+			quantNo(no->esq,&qtdeEsq);
+			fb = qtdeEsq + qtdeDir;
+			if(fb < -1 || fb > 1)
+			{
+				aux = no->info;
+				if(no->esq == NULL)
+					no = no->dir;
+				else
+				if(no->dir == NULL)
+					no = no->esq;
+				buscaNo(*raiz,aux,&e,&pai);
+				
+				if(fb > 0)
+					exclusaoLado(&*raiz,e,pai,'d');
+				else
+					exclusaoLado(&*raiz,e,pai,'e');
+				
+				inserirABBrec(&*raiz,aux);
+			}
+		}while(fb < -1 || fb > 1);
+	}
+}
+
 char menu(void)
 {
 	printf("*** MENU ARVORE ABB ***\n");
@@ -467,6 +684,7 @@ char menu(void)
 	printf("\n[K] - Deletando uma ABB inteira interativa");
 	printf("\n[L] - Excluindo no ABB");
 	printf("\n[M] - Balanceando ABB");
+	printf("\n[N] - Quantidade de no ABB");
 	printf("\n[ESC] - Encerrar algoritmo\n");
 	printf("\nOpcao: ");
 	
@@ -483,7 +701,7 @@ int main()
 	tree *pai = NULL;
 	
 	char op;
-	int valor, x=60, y=1, dist=20, info;
+	int valor, x=60, y=1, dist=20, info, cont=0;
 	
 	//montando a arvore
 	inserirABBrec(&raiz,15); //raiz da arvore
@@ -494,6 +712,9 @@ int main()
 	inserirABBrec(&raiz,20);
 	inserirABBrec(&raiz,18);
 	inserirABBrec(&raiz,22);
+	inserirABBrec(&raiz,23);
+	inserirABBrec(&raiz,27);
+	inserirABBrec(&raiz,26);
 	
 	do
 	{
@@ -621,8 +842,16 @@ int main()
 				
 			case 'M':
 				printf("### BALANCEADO ARVORE ABB ###\n");
+				balanceamento(&raiz,e,pai);
 				
 				
+				break;
+				
+			case 'N':
+				printf("### QUANTIDADE DE NO NA ABB ###\n");
+				
+				quantNo(raiz,&cont);
+				printf("\nQuantidade de no: %d",cont);
 				
 				break;
 				
