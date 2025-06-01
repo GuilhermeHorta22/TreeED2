@@ -60,7 +60,7 @@ void insereKdTree(kdtree **raiz, int ponto[TF][K], int n, int ini, int fim)
 		insereKdTree(&(*raiz)->esq, ponto, n+1, ini, meio-1);
 		insereKdTree(&(*raiz)->dir, ponto, n+1, meio+1, fim);
 	}
-}
+
 
 //função que exibe a arvore montada (graficamente)
 void exibeTree(kdtree *raiz, int x, int y, int dist)
